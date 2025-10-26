@@ -211,7 +211,8 @@ export default function StudentsPage() {
                               className="w-10 h-10 rounded-full object-cover"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
-                                e.currentTarget.nextElementSibling!.style.display = 'block';
+                                const sibling = e.currentTarget.nextElementSibling as HTMLElement;
+                                if (sibling) sibling.style.display = 'block';
                               }}
                             />
                           ) : null}
