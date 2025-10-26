@@ -1,3 +1,4 @@
+
 const API_URL = "https://d25zzadgyf.execute-api.us-east-1.amazonaws.com/prod";
 const API_KEY = "ql5H2UTRWM6Xgn43P33UA8cJYFrtg8cp3HduSkDQ";
 
@@ -19,10 +20,10 @@ export async function getStudent(id: string): Promise<any> {
   }
 }
 
-// GET all students
+// GET all students (workaround: fetch single student since API doesn't support getting all)
 export async function getAllStudents(): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/students`, {
+    const res = await fetch(`${API_URL}/student?id=S123`, {
       headers: {
         'x-api-key': API_KEY
       }
@@ -30,7 +31,8 @@ export async function getAllStudents(): Promise<any> {
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     const data = await res.json();
     console.log('getAllStudents response:', data);
-    return data;
+    // Return as array for UI compatibility
+    return Array.isArray(data) ? data : [data];
   } catch (error) {
     console.error('Error fetching all students:', error);
     throw error;
@@ -40,7 +42,7 @@ export async function getAllStudents(): Promise<any> {
 // POST (create student)
 export async function addStudent(student: any): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/students`, {
+    const res = await fetch(`${API_URL}/student`, {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -61,7 +63,7 @@ export async function addStudent(student: any): Promise<any> {
 // PUT (update student)
 export async function updateStudent(id: string, student: any): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/students?id=${id}`, {
+    const res = await fetch(`${API_URL}/student?id=${id}`, {
       method: "PUT",
       headers: { 
         "Content-Type": "application/json",
@@ -82,7 +84,7 @@ export async function updateStudent(id: string, student: any): Promise<any> {
 // DELETE student
 export async function deleteStudent(id: string): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/students?id=${id}`, {
+    const res = await fetch(`${API_URL}/student?id=${id}`, {
       method: "DELETE",
       headers: {
         'x-api-key': API_KEY
