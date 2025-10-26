@@ -2,12 +2,6 @@ import { motion } from 'framer-motion'
 import { Play, ArrowRight } from 'lucide-react'
 import { Button } from './ui/button'
 
-const floatingMetrics = [
-  { label: '95% Attendance', color: 'from-green-500 to-emerald-500', delay: 0 },
-  { label: '84% Engagement', color: 'from-blue-500 to-cyan-500', delay: 0.2 },
-  { label: '+42% Performance', color: 'from-purple-500 to-pink-500', delay: 0.4 },
-]
-
 export default function HeroSection() {
   return (
     <section className="relative min-h-[85vh] overflow-hidden bg-gradient-to-b from-slate-50 via-white to-blue-50">

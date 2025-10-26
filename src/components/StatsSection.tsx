@@ -8,7 +8,7 @@ const stats = [
   { value: 4.9, suffix: '/5', label: 'User Rating', decimal: true },
 ]
 
-function AnimatedCounter({ value, suffix, decimal }: { value: number; suffix: string; decimal?: boolean }) {
+function AnimatedCounter({ value, decimal }: { value: number; suffix: string; decimal?: boolean }) {
   const ref = useRef<HTMLSpanElement>(null)
   const motionValue = useMotionValue(0)
   const springValue = useSpring(motionValue, { duration: 2000 })
