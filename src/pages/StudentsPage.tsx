@@ -205,10 +205,17 @@ export default function StudentsPage() {
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           {student.photo?.startsWith('http') ? (
-                            <img src={student.photo} alt={student.name} className="w-10 h-10 rounded-full object-cover" />
-                          ) : (
-                            <div className="text-3xl">{student.photo}</div>
-                          )}
+                            <img 
+                              src={student.photo} 
+                              alt={student.name} 
+                              className="w-10 h-10 rounded-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling!.style.display = 'block';
+                              }}
+                            />
+                          ) : null}
+                          <div className="text-3xl" style={{ display: student.photo?.startsWith('http') ? 'none' : 'block' }}>👨‍🎓</div>
                           <span className="font-medium">{student.name}</span>
                         </div>
                       </td>

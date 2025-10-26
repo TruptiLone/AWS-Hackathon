@@ -20,19 +20,27 @@ export async function getStudent(record_id: string): Promise<any> {
   }
 }
 
-// GET all students (workaround: fetch single student since API doesn't support getting all)
+// GET all students (fetch multiple records if you have more in DynamoDB)
 export async function getAllStudents(): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/students?record_id=EDU-002`, {
-      headers: {
-        'x-api-key': API_KEY
-      }
-    });
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const data = await res.json();
-    console.log('getAllStudents response:', data);
-    // Return as array for UI compatibility
-    return Array.isArray(data) ? data : [data];
+    // List of known record IDs - add more if you have them in DynamoDB
+    const recordIds = ['EDU-001', 'EDU-002', 'EDU-003'];
+    
+    // Fetch all students in parallel
+    const promises = recordIds.map(id => 
+      fetch(`${API_URL}/students?record_id=${id}`, {
+        headers: { 'x-api-key': API_KEY }
+      })
+      .then(res => res.ok ? res.json() : null)
+      .catch(() => null)
+    );
+    
+    const results = await Promise.all(promises);
+    // Filter out null results (failed requests)
+    const students = results.filter(data => data !== null);
+    
+    console.log('getAllStudents response:', students);
+    return students;
   } catch (error) {
     console.error('Error fetching all students:', error);
     throw error;
