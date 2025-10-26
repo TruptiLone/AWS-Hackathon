@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BarChart3, BookOpen, Users, TrendingUp, ChevronDown, Check, Video, Brain, Clock, Shield } from 'lucide-react'
+import { BarChart3, BookOpen, Users, TrendingUp, ChevronDown, Check, Brain } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
 const services = [
