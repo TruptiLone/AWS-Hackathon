@@ -1,11 +1,10 @@
-
-const API_URL = "https://d25zzadgyf.execute-api.us-east-1.amazonaws.com/prod";
+const API_URL = "https://d25zzadgyf.execute-api.us-east-1.amazonaws.com/prod/students";
 const API_KEY = "ql5H2UTRWM6Xgn43P33UA8cJYFrtg8cp3HduSkDQ";
 
 // GET single student
-export async function getStudent(id: string): Promise<any> {
+export async function getStudent(record_id: string): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/students?id=${id}`, {
+    const res = await fetch(`${API_URL}/students?record_id=${record_id}`, {
       headers: {
         'x-api-key': API_KEY
       }
@@ -23,7 +22,7 @@ export async function getStudent(id: string): Promise<any> {
 // GET all students (workaround: fetch single student since API doesn't support getting all)
 export async function getAllStudents(): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/student?id=S123&record_id=EDU-001`, {
+    const res = await fetch(`${API_URL}/students?record_id=EDU-002`, {
       headers: {
         'x-api-key': API_KEY
       }
@@ -42,7 +41,7 @@ export async function getAllStudents(): Promise<any> {
 // POST (create student)
 export async function addStudent(student: any): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/student`, {
+    const res = await fetch(`${API_URL}/students`, {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -61,9 +60,9 @@ export async function addStudent(student: any): Promise<any> {
 }
 
 // PUT (update student)
-export async function updateStudent(id: string, student: any): Promise<any> {
+export async function updateStudent(record_id: string, student: any): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/student?id=${id}`, {
+    const res = await fetch(`${API_URL}/students?record_id=${record_id}`, {
       method: "PUT",
       headers: { 
         "Content-Type": "application/json",
@@ -82,9 +81,9 @@ export async function updateStudent(id: string, student: any): Promise<any> {
 }
 
 // DELETE student
-export async function deleteStudent(id: string): Promise<any> {
+export async function deleteStudent(record_id: string): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/student?id=${id}`, {
+    const res = await fetch(`${API_URL}/students?record_id=${record_id}`, {
       method: "DELETE",
       headers: {
         'x-api-key': API_KEY
