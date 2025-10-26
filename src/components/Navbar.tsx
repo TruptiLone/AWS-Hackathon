@@ -32,15 +32,6 @@ export default function Navbar() {
     }
   }, [])
 
-  const handleRoleSwitch = (role: 'teacher' | 'student') => {
-    setUserRole(role)
-    if (user) {
-      const updatedUser = { ...user, type: role }
-      localStorage.setItem('user', JSON.stringify(updatedUser))
-      setUser(updatedUser)
-      // Trigger a custom event to notify other components
-      window.dispatchEvent(new CustomEvent('roleChanged', { detail: role }))
-    }
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
   }
