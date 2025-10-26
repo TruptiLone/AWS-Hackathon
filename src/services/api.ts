@@ -1,8 +1,5 @@
-// Use proxy in development, direct URL in production
-const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-const API_URL = isDev
-  ? "/api/students" 
-  : "https://d25zzadgyf.execute-api.us-east-1.amazonaws.com/prod/students";
+// Use CORS proxy (works in both dev and production)
+const API_URL = "https://corsproxy.io/?https://d25zzadgyf.execute-api.us-east-1.amazonaws.com/prod/students";
 const API_KEY = "ql5H2UTRWM6Xgn43P33UA8cJYFrtg8cp3HduSkDQ";
 
 // GET single student
