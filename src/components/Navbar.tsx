@@ -41,8 +41,6 @@ export default function Navbar() {
       // Trigger a custom event to notify other components
       window.dispatchEvent(new CustomEvent('roleChanged', { detail: role }))
     }
-  }
-
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
   }

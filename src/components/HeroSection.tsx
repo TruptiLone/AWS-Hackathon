@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { Play, ArrowRight, Users, GraduationCap } from 'lucide-react'
+import { ArrowRight, Users, GraduationCap } from 'lucide-react'
 import { Button } from './ui/button'
 
 export default function HeroSection() {
