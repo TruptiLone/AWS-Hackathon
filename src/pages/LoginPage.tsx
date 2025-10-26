@@ -1,10 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { GraduationCap, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { GraduationCap, Mail, Lock, Eye, EyeOff, Users, User } from 'lucide-react'
 import { Button } from '../components/ui/button'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
+import { jwtDecode } from 'jwt-decode'
+
+interface GoogleUser {
+  email: string
+  name: string
+  picture: string
+  sub: string
+}
 
 export default function LoginPage() {
+  const navigate = useNavigate()
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -15,13 +25,52 @@ export default function LoginPage() {
     institution: '',
     rememberMe: false,
   })
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
+    // Store user info
+    localStorage.setItem('user', JSON.stringify({
+      email: formData.email,
+      name: formData.fullName,
+      type: formData.role,
+    }))
+    localStorage.setItem('isAuthenticated', 'true')
+    
+    // Redirect to home page after successful login
+    navigate('/')
+  }
+
+  const handleGoogleSuccess = (credentialResponse: any) => {
+    try {
+      const decoded: GoogleUser = jwtDecode(credentialResponse.credential)
+      
+      // Store user info in localStorage
+      const userData = {
+        email: decoded.email,
+        name: decoded.name,
+        picture: decoded.picture,
+        type: formData.role,
+        id: decoded.sub
+      }
+      
+      localStorage.setItem('user', JSON.stringify(userData))
+      localStorage.setItem('isAuthenticated', 'true')
+      
+      // Redirect to home page after successful login
+      navigate('/')
+    } catch (err) {
+      console.error('Login error:', err)
+      setError('Failed to process Google login. Please try again.')
+    }
+  }
+
+  const handleGoogleError = () => {
+    setError('Google Sign-In failed. Please try again.')
   }
 
   return (
+    <GoogleOAuthProvider clientId="46122271287-2keilvm7mnrlqioupkqkvsj0nn3ls1oc.apps.googleusercontent.com">
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Left Side - Form */}
       <div className="flex items-center justify-center p-8 bg-background">
@@ -31,6 +80,37 @@ export default function LoginPage() {
           transition={{ duration: 0.6 }}
           className="w-full max-w-md"
         >
+          {/* Role Selector Tabs */}
+          <div className="mb-6">
+            <p className="text-sm font-medium text-muted-foreground mb-3">I am a:</p>
+            <div className="grid grid-cols-2 gap-3 p-1 bg-muted rounded-lg">
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, role: 'student' })}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-all ${
+                  formData.role === 'student'
+                    ? 'bg-white shadow-sm text-purple-600'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <User className="h-5 w-5" />
+                Student
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, role: 'teacher' })}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-all ${
+                  formData.role === 'teacher'
+                    ? 'bg-white shadow-sm text-blue-600'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Users className="h-5 w-5" />
+                Teacher
+              </button>
+            </div>
+          </div>
+
           <div className="mb-8">
             <Link to="/" className="flex items-center gap-2 mb-6">
               <GraduationCap className="h-8 w-8 text-primary" />
@@ -144,6 +224,12 @@ export default function LoginPage() {
               </div>
             )}
 
+            {error && (
+              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
             <Button type="submit" className="w-full py-6 text-lg">
               {isLogin ? 'Sign In' : 'Create Account'}
             </Button>
@@ -157,7 +243,18 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                theme="outline"
+                size="large"
+                text="continue_with"
+                width="400"
+              />
+            </div>
+
+            <div className="hidden grid-cols-2 gap-4">
               <Button type="button" variant="outline" className="py-6">
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
@@ -235,5 +332,6 @@ export default function LoginPage() {
         </div>
       </motion.div>
     </div>
+    </GoogleOAuthProvider>
   )
 }

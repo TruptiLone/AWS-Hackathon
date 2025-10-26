@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { Play, ArrowRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Play, ArrowRight, Users, GraduationCap } from 'lucide-react'
 import { Button } from './ui/button'
 
 export default function HeroSection() {
@@ -50,27 +51,43 @@ export default function HeroSection() {
               Track attendance, monitor student engagement, and improve academic outcomes with intelligent analytics designed for modern educators.
             </motion.p>
 
+            {/* Portal Selection */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 pt-2"
+              className="pt-2"
             >
-              <Button
-                size="lg"
-                className="bg-blue-600 hover:bg-blue-700 text-white text-base px-8 py-6 shadow-lg hover:shadow-xl transition-all"
-              >
-                Get Started Free
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-2 border-slate-300 text-slate-700 hover:bg-slate-50 text-base px-8 py-6"
-              >
-                <Play className="mr-2 h-5 w-5" />
-                Watch Demo
-              </Button>
+              <p className="text-sm font-semibold text-slate-700 mb-4">Choose Your Portal:</p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link to="/login?role=teacher" className="flex-1">
+                  <Button
+                    size="lg"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-base px-8 py-6 shadow-lg hover:shadow-xl transition-all group"
+                  >
+                    <Users className="mr-3 h-5 w-5" />
+                    <div className="text-left">
+                      <div className="font-semibold">Teacher Portal</div>
+                      <div className="text-xs opacity-90">Manage all students</div>
+                    </div>
+                    <ArrowRight className="ml-auto h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Link to="/login?role=student" className="flex-1">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-50 text-base px-8 py-6 shadow-lg hover:shadow-xl transition-all group"
+                  >
+                    <GraduationCap className="mr-3 h-5 w-5" />
+                    <div className="text-left">
+                      <div className="font-semibold">Student Portal</div>
+                      <div className="text-xs opacity-75">View your progress</div>
+                    </div>
+                    <ArrowRight className="ml-auto h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </div>
             </motion.div>
 
             {/* Trust Indicators */}
