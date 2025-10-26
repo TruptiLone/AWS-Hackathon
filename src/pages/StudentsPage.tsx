@@ -5,18 +5,71 @@ import { Card } from '../components/ui/card'
 import { useState, useEffect } from 'react'
 import { getAllStudents, addStudent } from '../services/api'
 
-const students = [
-  { id: 'ST001', name: 'John Doe', photo: '👨‍🎓', class: 'CS 301', attendance: 92, engagement: 88, lastActive: '2 hours ago' },
-  { id: 'ST002', name: 'Sarah Johnson', photo: '👩‍🎓', class: 'Math 101', attendance: 88, engagement: 95, lastActive: '1 hour ago' },
-  { id: 'ST003', name: 'Michael Chen', photo: '👨‍🎓', class: 'Physics 202', attendance: 95, engagement: 90, lastActive: '30 mins ago' },
-  { id: 'ST004', name: 'Emily Rodriguez', photo: '👩‍🎓', class: 'CS 301', attendance: 78, engagement: 82, lastActive: '3 hours ago' },
-  { id: 'ST005', name: 'David Kim', photo: '👨‍🎓', class: 'Math 101', attendance: 85, engagement: 87, lastActive: '1 hour ago' },
-  { id: 'ST006', name: 'Lisa Wang', photo: '👩‍🎓', class: 'Physics 202', attendance: 91, engagement: 93, lastActive: '45 mins ago' },
-  { id: 'ST007', name: 'James Wilson', photo: '👨‍🎓', class: 'CS 301', attendance: 65, engagement: 70, lastActive: '5 hours ago' },
-  { id: 'ST008', name: 'Maria Garcia', photo: '👩‍🎓', class: 'Math 101', attendance: 89, engagement: 91, lastActive: '2 hours ago' },
-  { id: 'ST009', name: 'Robert Taylor', photo: '👨‍🎓', class: 'Physics 202', attendance: 94, engagement: 89, lastActive: '1 hour ago' },
-  { id: 'ST010', name: 'Anna Lee', photo: '👩‍🎓', class: 'CS 301', attendance: 87, engagement: 85, lastActive: '4 hours ago' },
-]
+interface StudentRecord {
+  record_id: string
+  attendance: number
+  class_name: string
+  department: string
+  engagement: number
+  grade: number
+  photo_url: string
+  session_date: string
+  speaking_time: number
+  student_email: string
+  student_id: string
+  student_name: string
+  teacher_name: string
+  topic: string
+}
+
+// Load CSV data
+async function loadCSVData(): Promise<StudentRecord[]> {
+  try {
+    const response = await fetch('/student.csv')
+    const text = await response.text()
+    const lines = text.split('\n')
+    const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim())
+    
+    const data: StudentRecord[] = []
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue
+      const values = parseCSVLine(lines[i])
+      const record: any = {}
+      headers.forEach((header, index) => {
+        const value = values[index]
+        if (['attendance', 'engagement', 'grade', 'speaking_time'].includes(header)) {
+          record[header] = parseFloat(value)
+        } else {
+          record[header] = value
+        }
+      })
+      data.push(record)
+    }
+    return data
+  } catch (error) {
+    console.error('Error loading CSV:', error)
+    return []
+  }
+}
+
+function parseCSVLine(line: string): string[] {
+  const result: string[] = []
+  let current = ''
+  let inQuotes = false
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i]
+    if (char === '"') {
+      inQuotes = !inQuotes
+    } else if (char === ',' && !inQuotes) {
+      result.push(current.trim())
+      current = ''
+    } else {
+      current += char
+    }
+  }
+  result.push(current.trim())
+  return result
+}
 
 const getStatusColor = (attendance: number) => {
   if (attendance >= 80) return 'bg-green-100 text-green-800 border-green-200'
@@ -52,28 +105,19 @@ export default function StudentsPage() {
     const fetchStudents = async () => {
       try {
         setLoading(true)
-        const data = await getAllStudents()
-        console.log('API Response:', data)
-        
-        // Transform DynamoDB data to match your UI format
-        if (data && typeof data === 'object') {
-          const dataArray = Array.isArray(data) ? data : [data]
-          const transformed = dataArray.map(transformDynamoDBStudent)
-          setApiStudents(transformed)
-        } else {
-          setApiStudents([])
-        }
-        
+        const csvData = await loadCSVData()
+        console.log('Loaded CSV students:', csvData)
+        setApiStudents(csvData)
         setError(null)
       } catch (err) {
-        console.error('Error fetching students:', err)
-        setError('Failed to load students from database')
+        console.error('Error loading students:', err)
+        setError('Failed to load students from CSV')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchStudents()
+    loadStudents()
   }, [])
 
   // Handler for adding a new student
@@ -195,35 +239,29 @@ export default function StudentsPage() {
                 <tbody>
                   {filteredStudents.map((student, index) => (
                     <motion.tr
-                      key={student.id}
+                      key={student.student_id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                       className="border-b hover:bg-muted/30 transition-colors"
                     >
-                      <td className="p-4 font-medium">{student.id}</td>
+                      <td className="p-4 font-medium">{student.student_id}</td>
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          {student.photo?.startsWith('http') ? (
-                            <img 
-                              src={student.photo} 
-                              alt={student.name} 
-                              className="w-10 h-10 rounded-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                                const sibling = e.currentTarget.nextElementSibling as HTMLElement;
-                                if (sibling) sibling.style.display = 'block';
-                              }}
-                            />
-                          ) : null}
-                          <div className="text-3xl" style={{ display: student.photo?.startsWith('http') ? 'none' : 'block' }}>👨‍🎓</div>
-                          <span className="font-medium">{student.name}</span>
+                          {student.photo_url?.startsWith('http') || student.photo_url?.startsWith('s3://') ? (
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                              {student.student_name?.charAt(0) || '?'}
+                            </div>
+                          ) : (
+                            <div className="text-3xl">👨‍🎓</div>
+                          )}
+                          <span className="font-medium">{student.student_name}</span>
                         </div>
                       </td>
-                      <td className="p-4">{student.class}</td>
+                      <td className="p-4">{student.class_name}</td>
                       <td className="p-4">
                         <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(student.attendance)}`}>
-                          {student.attendance}%
+                          {student.attendance.toFixed(1)}%
                         </span>
                       </td>
                       <td className="p-4">
@@ -234,10 +272,10 @@ export default function StudentsPage() {
                               style={{ width: `${student.engagement}%` }}
                             />
                           </div>
-                          <span className="text-sm font-medium">{student.engagement}</span>
+                          <span className="text-sm font-medium">{student.engagement.toFixed(1)}</span>
                         </div>
                       </td>
-                      <td className="p-4 text-sm text-muted-foreground">{student.lastActive}</td>
+                      <td className="p-4 text-sm text-muted-foreground">{student.session_date}</td>
                       <td className="p-4">
                         <div className="flex gap-2">
                           <Button size="sm" variant="ghost" className="h-8 w-8 p-0">

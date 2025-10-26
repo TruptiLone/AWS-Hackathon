@@ -21,6 +21,8 @@ function App() {
         <Route path="/students" element={<StudentsPage />} />
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/sessions" element={<SessionsPage />} />
+        {/* Catch-all route for 404 */}
+        <Route path="*" element={<HomePage />} />
       </Route>
     </Routes>
   )
