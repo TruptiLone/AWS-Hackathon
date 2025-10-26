@@ -2,7 +2,7 @@ const API_URL = "https://d25zzadgyf.execute-api.us-east-1.amazonaws.com/prod";
 const API_KEY = "ql5H2UTRWM6Xgn43P33UA8cJYFrtg8cp3HduSkDQ";
 
 // GET single student
-export async function getStudent(id) {
+export async function getStudent(id: string): Promise<any> {
   try {
     const res = await fetch(`${API_URL}/student?id=${id}`, {
       headers: {
@@ -20,7 +20,7 @@ export async function getStudent(id) {
 }
 
 // GET all students
-export async function getAllStudents() {
+export async function getAllStudents(): Promise<any> {
   try {
     const res = await fetch(`${API_URL}/student`, {
       headers: {
@@ -38,7 +38,7 @@ export async function getAllStudents() {
 }
 
 // POST (create student)
-export async function addStudent(student) {
+export async function addStudent(student: any): Promise<any> {
   try {
     const res = await fetch(`${API_URL}/student`, {
       method: "POST",
@@ -59,7 +59,7 @@ export async function addStudent(student) {
 }
 
 // PUT (update student)
-export async function updateStudent(id, student) {
+export async function updateStudent(id: string, student: any): Promise<any> {
   try {
     const res = await fetch(`${API_URL}/student?id=${id}`, {
       method: "PUT",
@@ -80,7 +80,7 @@ export async function updateStudent(id, student) {
 }
 
 // DELETE student
-export async function deleteStudent(id) {
+export async function deleteStudent(id: string): Promise<any> {
   try {
     const res = await fetch(`${API_URL}/student?id=${id}`, {
       method: "DELETE",
