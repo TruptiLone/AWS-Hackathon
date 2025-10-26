@@ -2,7 +2,8 @@ import { motion } from 'framer-motion'
 import { Search, Plus, Eye, Mail, BarChart3, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { getAllStudents, addStudent } from '../services/api'
 
 const students = [
   { id: 'ST001', name: 'John Doe', photo: '👨‍🎓', class: 'CS 301', attendance: 92, engagement: 88, lastActive: '2 hours ago' },
@@ -23,11 +24,84 @@ const getStatusColor = (attendance: number) => {
   return 'bg-red-100 text-red-800 border-red-200'
 }
 
+// Helper function to transform DynamoDB format to UI format
+const transformDynamoDBStudent = (dbStudent: any) => {
+  return {
+    id: dbStudent.student_id?.S || dbStudent.record_id?.S || 'N/A',
+    name: dbStudent.student_name?.S || 'Unknown',
+    photo: dbStudent.photo_url?.S || '👨‍🎓',
+    class: dbStudent.class_name?.S || 'N/A',
+    attendance: Math.round((parseFloat(dbStudent.time_inside_class?.N || '0') / 3600) * 100) || 0,
+    engagement: Math.round(parseFloat(dbStudent.engagement?.N || '0') * 100) || 0,
+    lastActive: dbStudent.session_date?.S || 'N/A',
+    email: dbStudent.student_email?.S || '',
+    grade: dbStudent.grade?.N || 'N/A',
+    teacher: dbStudent.teacher_name?.S || 'N/A',
+  }
+}
+
 export default function StudentsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterClass, setFilterClass] = useState('all')
+  const [apiStudents, setApiStudents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const filteredStudents = students.filter(student => {
+  // Fetch students from API on component mount
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        setLoading(true)
+        const data = await getAllStudents()
+        console.log('API Response:', data)
+        
+        // Transform DynamoDB data to match your UI format
+        if (data && typeof data === 'object') {
+          // If data is a single object, wrap it in an array
+          const dataArray = Array.isArray(data) ? data : [data]
+          const transformed = dataArray.map(transformDynamoDBStudent)
+          setApiStudents(transformed)
+        } else {
+          setApiStudents([])
+        }
+        
+        setError(null)
+      } catch (err) {
+        console.error('Error fetching students:', err)
+        setError('Failed to load students from database')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStudents()
+  }, [])
+
+  // Handler for adding a new student
+  const handleAddStudent = async () => {
+    try {
+      const newStudent = {
+        id: "S124",
+        name: "Alice Johnson",
+        email: "alice@university.edu",
+        class_id: "COEN233",
+        class_name: "Networking"
+      }
+      const result = await addStudent(newStudent)
+      console.log('Student added:', result)
+      // Refresh the student list
+      const data = await getAllStudents()
+      setApiStudents(data)
+    } catch (err) {
+      console.error('Error adding student:', err)
+      alert('Failed to add student')
+    }
+  }
+
+  // Combine API students with mock students, prioritize API data
+  const allStudents = apiStudents.length > 0 ? apiStudents : students
+  
+  const filteredStudents = allStudents.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          student.id.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesClass = filterClass === 'all' || student.class === filterClass
@@ -50,11 +124,51 @@ export default function StudentsPage() {
                 Manage and track student information and performance
               </p>
             </div>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={handleAddStudent}>
               <Plus className="h-4 w-4" />
               Add Student
             </Button>
           </div>
+
+          {/* Loading State */}
+          {loading && (
+            <Card className="p-6 mb-6">
+              <p className="text-center text-muted-foreground">Loading students from database...</p>
+            </Card>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <Card className="p-6 mb-6 border-red-200 bg-red-50">
+              <p className="text-center text-red-600">{error}</p>
+              <p className="text-center text-sm text-muted-foreground mt-2">Showing mock data instead</p>
+            </Card>
+          )}
+
+          {/* API Data Display */}
+          {!loading && apiStudents.length > 0 && (
+            <Card className="p-6 mb-6 border-green-200 bg-green-50">
+              <p className="text-center text-green-600 font-semibold">✅ Connected to database! Displaying {apiStudents.length} student(s) from AWS DynamoDB</p>
+              <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="bg-white p-3 rounded">
+                  <p className="text-muted-foreground">Student Name</p>
+                  <p className="font-semibold">{apiStudents[0]?.name}</p>
+                </div>
+                <div className="bg-white p-3 rounded">
+                  <p className="text-muted-foreground">Class</p>
+                  <p className="font-semibold">{apiStudents[0]?.class}</p>
+                </div>
+                <div className="bg-white p-3 rounded">
+                  <p className="text-muted-foreground">Grade</p>
+                  <p className="font-semibold">{apiStudents[0]?.grade}</p>
+                </div>
+                <div className="bg-white p-3 rounded">
+                  <p className="text-muted-foreground">Engagement</p>
+                  <p className="font-semibold">{apiStudents[0]?.engagement}%</p>
+                </div>
+              </div>
+            </Card>
+          )}
 
           {/* Search and Filters */}
           <Card className="p-6 mb-6">
@@ -109,7 +223,11 @@ export default function StudentsPage() {
                       <td className="p-4 font-medium">{student.id}</td>
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          <div className="text-3xl">{student.photo}</div>
+                          {student.photo?.startsWith('http') ? (
+                            <img src={student.photo} alt={student.name} className="w-10 h-10 rounded-full object-cover" />
+                          ) : (
+                            <div className="text-3xl">{student.photo}</div>
+                          )}
                           <span className="font-medium">{student.name}</span>
                         </div>
                       </td>
@@ -205,7 +323,7 @@ export default function StudentsPage() {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-6">
             <p className="text-sm text-muted-foreground">
-              Showing {filteredStudents.length} of {students.length} students
+              Showing {filteredStudents.length} of {allStudents.length} students {apiStudents.length > 0 && '(from database)'}
             </p>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled>
