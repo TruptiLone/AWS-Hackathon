@@ -3,6 +3,15 @@ import { motion } from 'framer-motion'
 import { GraduationCap, Mail, Lock, Eye, EyeOff, Users, User } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Link, useNavigate } from 'react-router-dom'
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
+import { jwtDecode } from 'jwt-decode'
+
+interface GoogleUser {
+  email: string
+  name: string
+  picture: string
+  sub: string
+}
 
 export default function LoginPage() {
   const navigate = useNavigate()
