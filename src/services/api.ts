@@ -1,5 +1,6 @@
 // Use proxy in development, direct URL in production
-const API_URL = import.meta.env.DEV 
+const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+const API_URL = isDev
   ? "/api/students" 
   : "https://d25zzadgyf.execute-api.us-east-1.amazonaws.com/prod/students";
 const API_KEY = "ql5H2UTRWM6Xgn43P33UA8cJYFrtg8cp3HduSkDQ";
