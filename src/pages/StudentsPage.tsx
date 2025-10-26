@@ -136,37 +136,19 @@ export default function StudentsPage() {
             </Card>
           )}
 
-          {/* Error State */}
+          {/* Error State - Subtle warning */}
           {error && (
-            <Card className="p-6 mb-6 border-red-200 bg-red-50">
-              <p className="text-center text-red-600">{error}</p>
-              <p className="text-center text-sm text-muted-foreground mt-2">Showing mock data instead</p>
-            </Card>
+            <div className="mb-4 flex items-center gap-2 text-sm text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
+              <span>⚠️ {error} • Showing demo data</span>
+            </div>
           )}
 
-          {/* API Data Display */}
+          {/* API Data Display - Subtle success indicator */}
           {!loading && apiStudents.length > 0 && (
-            <Card className="p-6 mb-6 border-green-200 bg-green-50">
-              <p className="text-center text-green-600 font-semibold">✅ Connected to database! Displaying {apiStudents.length} student(s) from AWS DynamoDB</p>
-              <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div className="bg-white p-3 rounded">
-                  <p className="text-muted-foreground">Student Name</p>
-                  <p className="font-semibold">{apiStudents[0]?.name}</p>
-                </div>
-                <div className="bg-white p-3 rounded">
-                  <p className="text-muted-foreground">Class</p>
-                  <p className="font-semibold">{apiStudents[0]?.class}</p>
-                </div>
-                <div className="bg-white p-3 rounded">
-                  <p className="text-muted-foreground">Grade</p>
-                  <p className="font-semibold">{apiStudents[0]?.grade}</p>
-                </div>
-                <div className="bg-white p-3 rounded">
-                  <p className="text-muted-foreground">Engagement</p>
-                  <p className="font-semibold">{apiStudents[0]?.engagement}%</p>
-                </div>
-              </div>
-            </Card>
+            <div className="mb-4 flex items-center gap-2 text-sm text-green-600">
+              <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+              <span>Connected to AWS DynamoDB • {apiStudents.length} record(s) loaded</span>
+            </div>
           )}
 
           {/* Search and Filters */}
