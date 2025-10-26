@@ -49,32 +49,27 @@ export default function StudentsPage() {
 
   // Fetch students from API on component mount
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        setLoading(true)
-        const data = await getAllStudents()
-        console.log('API Response:', data)
-        
-        // Transform DynamoDB data to match your UI format
-        if (data && typeof data === 'object') {
-          // If data is a single object, wrap it in an array
-          const dataArray = Array.isArray(data) ? data : [data]
-          const transformed = dataArray.map(transformDynamoDBStudent)
-          setApiStudents(transformed)
-        } else {
-          setApiStudents([])
-        }
-        
-        setError(null)
-      } catch (err) {
-        console.error('Error fetching students:', err)
-        setError('Failed to load students from database')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchStudents()
+    // API backend not configured yet - using mock data
+    setLoading(false)
+    setError('API backend configuration pending - displaying demo data')
+    // Uncomment when API is ready:
+    // const fetchStudents = async () => {
+    //   try {
+    //     setLoading(true)
+    //     const data = await getAllStudents()
+    //     if (data && typeof data === 'object') {
+    //       const dataArray = Array.isArray(data) ? data : [data]
+    //       const transformed = dataArray.map(transformDynamoDBStudent)
+    //       setApiStudents(transformed)
+    //     }
+    //     setError(null)
+    //   } catch (err) {
+    //     setError('Failed to load students from database')
+    //   } finally {
+    //     setLoading(false)
+    //   }
+    // }
+    // fetchStudents()
   }, [])
 
   // Handler for adding a new student
@@ -137,11 +132,11 @@ export default function StudentsPage() {
             </Card>
           )}
 
-          {/* Error State */}
+          {/* Info State */}
           {error && (
-            <Card className="p-6 mb-6 border-red-200 bg-red-50">
-              <p className="text-center text-red-600">{error}</p>
-              <p className="text-center text-sm text-muted-foreground mt-2">Showing mock data instead</p>
+            <Card className="p-6 mb-6 border-blue-200 bg-blue-50">
+              <p className="text-center text-blue-600">ℹ️ {error}</p>
+              <p className="text-center text-sm text-muted-foreground mt-2">Configure API Gateway Lambda integration to connect to DynamoDB</p>
             </Card>
           )}
 

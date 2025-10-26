@@ -23,7 +23,7 @@ export async function getStudent(id: string): Promise<any> {
 // GET all students (workaround: fetch single student since API doesn't support getting all)
 export async function getAllStudents(): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/student?id=S123`, {
+    const res = await fetch(`${API_URL}/student?id=S123&record_id=EDU-001`, {
       headers: {
         'x-api-key': API_KEY
       }
