@@ -1,15 +1,9 @@
-// Use CORS proxy (works in both dev and production)
-const API_URL = "https://corsproxy.io/?https://d25zzadgyf.execute-api.us-east-1.amazonaws.com/prod/students";
-const API_KEY = "ql5H2UTRWM6Xgn43P33UA8cJYFrtg8cp3HduSkDQ";
+const API_URL = "/api";
 
 // GET single student
 export async function getStudent(record_id: string): Promise<any> {
   try {
-    const res = await fetch(`${API_URL}/students?record_id=${record_id}`, {
-      headers: {
-        'x-api-key': API_KEY
-      }
-    });
+    const res = await fetch(`${API_URL}/students?record_id=${record_id}`);
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     const data = await res.json();
     console.log('getStudent response:', data);
@@ -28,9 +22,7 @@ export async function getAllStudents(): Promise<any> {
     
     // Fetch all students in parallel
     const promises = recordIds.map(id => 
-      fetch(`${API_URL}/students?record_id=${id}`, {
-        headers: { 'x-api-key': API_KEY }
-      })
+      fetch(`${API_URL}/students?record_id=${id}`)
       .then(res => res.ok ? res.json() : null)
       .catch(() => null)
     );
@@ -53,8 +45,7 @@ export async function addStudent(student: any): Promise<any> {
     const res = await fetch(`${API_URL}/students`, {
       method: "POST",
       headers: { 
-        "Content-Type": "application/json",
-        'x-api-key': API_KEY
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(student),
     });
@@ -74,8 +65,7 @@ export async function updateStudent(record_id: string, student: any): Promise<an
     const res = await fetch(`${API_URL}/students?record_id=${record_id}`, {
       method: "PUT",
       headers: { 
-        "Content-Type": "application/json",
-        'x-api-key': API_KEY
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(student),
     });
@@ -93,10 +83,7 @@ export async function updateStudent(record_id: string, student: any): Promise<an
 export async function deleteStudent(record_id: string): Promise<any> {
   try {
     const res = await fetch(`${API_URL}/students?record_id=${record_id}`, {
-      method: "DELETE",
-      headers: {
-        'x-api-key': API_KEY
-      }
+      method: "DELETE"
     });
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     const data = await res.json();
